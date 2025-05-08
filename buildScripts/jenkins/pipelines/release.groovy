@@ -9,6 +9,8 @@ pipeline {
 
     environment {
         CICD = '1'
+        TOOL_DIR = '/var/jenkins_home/tools/bin'
+        PATH = "${TOOL_DIR}:${env.PATH}"
     }
 
     options {
@@ -38,10 +40,27 @@ pipeline {
             }
         }
 
+        stage('Prepare Pretools') {
+            steps {
+                timestamps {
+                    ansiColor('xterm') {
+                        sh '''
+                            set -eux
+                            for script in /var/jenkins_home/netgod-pretools/*.sh; do
+                                echo "Running $script"
+                                bash "$script"
+                            done
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Run Terraform Plan') {
             steps {
                 timestamps {
                     ansiColor('xterm') {
+                        sh 'terraform version'
                         runTerraform('plan')
                     }
                 }
