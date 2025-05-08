@@ -1,18 +1,17 @@
 pipelineJob('netgod-terraform-release') {
+    description("Release CD for netgod-terraform")
     definition {
         cpsScm {
             scm {
                 git {
                     remote {
-                        url('https://github.com/yudapinhas/netgod-terraform.git')
+                        url('git@github.com:yudapinhas/netgod-terraform.git')
+                        credentials('github-ssh-key')
                     }
-                    branches('master')
+                    branches('*/master')
                 }
+                scriptPath('buildScripts/jenkins/pipeline/release.groovy')
             }
-            scriptPath('buildScripts/jenkins/pipeline/release.groovy')
         }
-    }
-    triggers {
-        scm('H/5 * * * *') // every 5 minutes or adjust to your preferred schedule
     }
 }
