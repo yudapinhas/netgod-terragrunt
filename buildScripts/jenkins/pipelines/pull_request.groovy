@@ -56,9 +56,13 @@ pipeline {
         stage('CI Passed - Notify Yuda') {
             steps {
                 script {
-                    def subject = "✅ SUCCESS: ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
-                    def body = "Build passed successfully! Check console output: <a href=\"${env.BUILD_URL}\">${env.BUILD_URL}</a>"
-                    notifyYuda(subject: subject, body: body)
+                    def emailInfo = notifyYuda('SUCCESS')
+                    emailext(
+                        to: emailInfo.to,
+                        subject: emailInfo.subject,
+                        body: emailInfo.body,
+                        mimeType: emailInfo.mimeType
+                    )
                 }
             }
         }
@@ -67,9 +71,13 @@ pipeline {
     post {
         failure {
             script {
-                def subject = "❌ FAILED: ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
-                def body = "Build failed! Check console output: <a href=\"${env.BUILD_URL}\">${env.BUILD_URL}</a>"
-                notifyYuda(subject: subject, body: body)
+                def emailInfo = notifyYuda('FAILURE')
+                emailext(
+                    to: emailInfo.to,
+                    subject: emailInfo.subject,
+                    body: emailInfo.body,
+                    mimeType: emailInfo.mimeType
+                )
             }
         }
         cleanup {
