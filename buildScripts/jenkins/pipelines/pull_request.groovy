@@ -1,7 +1,5 @@
 @Library('netgod-jenkins-shared-lib@master') _
 pipeline {
-    agent { label 'netgod-play-pod' }
-
     options {
         ansiColor('xterm')
         timestamps()
