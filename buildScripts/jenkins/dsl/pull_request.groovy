@@ -1,35 +1,38 @@
-pipelineJob('pulumi-komponents-pull-request') {
-    def repo = 'https://github.com/kenshoo/pulumi-komponents'
-    def sshRepo = 'git@github.com:kenshoo/pulumi-komponents.git'
+pipelineJob('netgod-terraform-pull-request') {
+    def repo = 'https://github.com/yudapinhas/netgod-terraform'
+    def sshRepo = 'git@github.com:yudapinhas/netgod-terraform.git'
+
     logRotator {
         numToKeep(30)
     }
-    description("PR Pulumi KS provision Automation - Pipeline")
-    properties{
-        githubProjectUrl (repo)
+
+    description("Pull Request CI for netgod-terraform")
+    properties {
+        githubProjectUrl(repo)
     }
+
     definition {
         cpsScm {
             scm {
                 git {
                     remote {
                         url(sshRepo)
-                        credentials('kgithub-build-jenkins-core-key')
-                        refspec('+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*')
+                        credentials('github-ssh-key')
+                        refspec('+refs/pull/*:refs/remotes/origin/pr/*')
                     }
-                    branches('${sha1}')
-                    scriptPath('buildScripts/jenkins/pipelines/pull_request.groovy')
+                    branches('*/master')
                 }
+                scriptPath('buildScripts/jenkins/pipeline/pull_request.groovy')
             }
-            triggers {
-                githubPullRequest {
-                    orgWhitelist('Kenshoo')
-                    useGitHubHooks()
-                    extensions {
-                        commitStatus {
-                            context("PR Pulumi components provision Automation")
-                        }
-                    }
+        }
+    }
+
+    triggers {
+        githubPullRequest {
+            useGitHubHooks()
+            extensions {
+                commitStatus {
+                    context("CI - netgod-terraform pull request")
                 }
             }
         }

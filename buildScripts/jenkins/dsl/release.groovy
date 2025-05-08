@@ -1,33 +1,26 @@
-pipelineJob('pulumi-komponents-release') {
-    def repo = 'https://github.com/kenshoo/pulumi-komponents'
-    def sshRepo = 'git@github.com:kenshoo/pulumi-komponents.git'
+pipelineJob('netgod-terraform-release') {
+    def repo = 'https://github.com/yudapinhas/netgod-terraform.git'
+
     logRotator {
-        numToKeep(30)
-    }
-    description("Pulumi KS provision Automation - Pipeline")
-
-    properties{
-        githubProjectUrl (repo)
+        numToKeep(10)
     }
 
-    parameters {
-        stringParam('COMMIT_ID', null, 'The commit sha to build')
+    description("Release CD for netgod-terraform")
+    properties {
+        githubProjectUrl(repo)
     }
-    triggers {
-        githubPush()
-    }
+
     definition {
         cpsScm {
             scm {
                 git {
                     remote {
-                        url(sshRepo)
-                        credentials('kgithub-build-jenkins-core-key')
+                        url(repo)
                     }
-                    branches('master')
-                    scriptPath('buildScripts/jenkins/pipelines/release.groovy')
+                    branches('main')
                 }
             }
+            scriptPath('buildScripts/jenkins/pipeline/release.groovy')
         }
     }
 }

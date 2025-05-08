@@ -1,1 +1,1 @@
-# template repository
+# NetGod terraform repository
