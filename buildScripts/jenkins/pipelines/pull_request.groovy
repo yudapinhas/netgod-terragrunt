@@ -4,10 +4,6 @@ pipeline {
     agent any
 
     environment {
-        PATH = "${env.WORKSPACE}:${env.HOME}/.pulumi/bin:${env.PATH}"
-        PULUMI_ACCESS_TOKEN = credentials('pulumi_access_token')
-        AWS_ACCESS_KEY_ID = credentials('aws-master-key')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-master-secret')
         CICD = '1'
     }
 
