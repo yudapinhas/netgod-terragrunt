@@ -1,29 +1,40 @@
 @Library('netgod-jenkins-shared-lib@master') _
+
 pipeline {
-    options {
-        ansiColor('xterm')
-        timestamps()
-    }
+    agent any
 
     environment {
-        PATH = "$PWD:$WORKSPACE:$HOME/.pulumi/bin:$PATH"
+        PATH = "${env.WORKSPACE}:${env.HOME}/.pulumi/bin:${env.PATH}"
         PULUMI_ACCESS_TOKEN = credentials('pulumi_access_token')
         AWS_ACCESS_KEY_ID = credentials('aws-master-key')
         AWS_SECRET_ACCESS_KEY = credentials('aws-master-secret')
-        CICD = 1
+        CICD = '1'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        skipDefaultCheckout()
     }
 
     stages {
         stage('Checkout') {
             steps {
-                cleanWs()
-                checkout scm
+                timestamps {
+                    ansiColor('xterm') {
+                        cleanWs()
+                        checkout scm
+                    }
+                }
             }
         }
 
         stage('Run Terraform Plan') {
             steps {
-                runTerraform('plan')
+                timestamps {
+                    ansiColor('xterm') {
+                        runTerraform('plan')
+                    }
+                }
             }
         }
 
