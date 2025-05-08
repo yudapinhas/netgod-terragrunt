@@ -1,40 +1,18 @@
 pipelineJob('netgod-terraform-release') {
-    def repo = 'https://github.com/yudapinhas/netgod-terraform'
-    def sshRepo = 'git@github.com:yudapinhas/netgod-terraform.git'
-
-    logRotator {
-        numToKeep(30)
-    }
-
-    description("Release CD for netgod-terraform")
-    properties {
-        githubProjectUrl(repo)
-    }
-
     definition {
         cpsScm {
             scm {
                 git {
                     remote {
-                        url(sshRepo)
-                        credentials('github-ssh-key')
-                        refspec('+refs/pull/*:refs/remotes/origin/pr/*')
+                        url('https://github.com/yudapinhas/netgod-terraform.git')
                     }
-                    branches('*/master')
+                    branches('master')
                 }
-                scriptPath('buildScripts/jenkins/pipeline/release.groovy')
             }
+            scriptPath('buildScripts/jenkins/pipeline/release.groovy')
         }
     }
-
     triggers {
-        githubPullRequest {
-            useGitHubHooks()
-            extensions {
-                commitStatus {
-                    context("CD - netgod-terraform release")
-                }
-            }
-        }
+        scm('H/5 * * * *') // every 5 minutes or adjust to your preferred schedule
     }
 }
