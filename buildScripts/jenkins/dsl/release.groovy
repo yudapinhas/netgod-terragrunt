@@ -1,16 +1,24 @@
 pipelineJob('netgod-terraform-release') {
+    def repo = 'https://github.com/yudapinhas/netgod-terraform'
+    def sshRepo = 'git@github.com:yudapinhas/netgod-terraform.git'
 
-    description('CD release pipeline for netgod-terraform')
+    logRotator {
+        numToKeep(30)
+    }
 
-    logRotator { numToKeep(30) }
+    description("Release CD for netgod-terraform")
+    properties {
+        githubProjectUrl(repo)
+    }
 
     definition {
         cpsScm {
             scm {
                 git {
                     remote {
-                        url('git@github.com:yudapinhas/netgod-terraform.git')
+                        url(sshRepo)
                         credentials('github-ssh-key')
+                        refspec('+refs/pull/*:refs/remotes/origin/pr/*')
                     }
                     branches('*/master')
                 }
@@ -20,6 +28,13 @@ pipelineJob('netgod-terraform-release') {
     }
 
     triggers {
-        scm('@daily')
+        githubPullRequest {
+            useGitHubHooks()
+            extensions {
+                commitStatus {
+                    context("CD - netgod-terraform release")
+                }
+            }
+        }
     }
 }
