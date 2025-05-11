@@ -1,4 +1,5 @@
 pipelineJob('netgod-terraform-pull-request') {
+    displayName('netgod-terraform-pull-request')
     description("Pull Request CI for netgod-terraform")
     properties {
         githubProjectUrl('https://github.com/yudapinhas/netgod-terraform')
@@ -12,7 +13,7 @@ pipelineJob('netgod-terraform-pull-request') {
                         credentials('github-ssh-key')
                         refspec('+refs/pull/*:refs/remotes/origin/pr/*')
                     }
-                    branches('*/master')
+                    branches('${ghprbActualCommit}')
                 }
                 scriptPath('buildScripts/jenkins/pipeline/pull_request.groovy')
             }
@@ -22,7 +23,6 @@ pipelineJob('netgod-terraform-pull-request') {
         githubPullRequest {
             useGitHubHooks()
             permitAll()
-            orgWhitelist('')
             extensions {
                 commitStatus {
                     context("CI - netgod-terraform PR")
