@@ -14,4 +14,7 @@ pipelineJob('netgod-terraform-release') {
             }
         }
     }
+    triggers {
+        scm('H/2 * * * *')
+    }
 }
