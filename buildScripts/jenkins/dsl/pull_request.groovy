@@ -1,5 +1,8 @@
 pipelineJob('netgod-terraform-pull-request') {
     description("Pull Request CI for netgod-terraform")
+    properties {
+        githubProjectUrl('https://github.com/yudapinhas/netgod-terraform')
+    }
     definition {
         cpsScm {
             scm {
@@ -12,6 +15,22 @@ pipelineJob('netgod-terraform-pull-request') {
                     branches('*/master')
                 }
                 scriptPath('buildScripts/jenkins/pipeline/pull_request.groovy')
+            }
+        }
+    }
+    triggers {
+        githubPullRequest {
+            useGitHubHooks()
+            permitAll()
+            orgWhitelist('')
+            extensions {
+                commitStatus {
+                    context("CI - netgod-terraform PR")
+                    triggeredStatus("Triggered by PR or comment")
+                    startedStatus("Running CI for PR...")
+                    completedStatus("SUCCESS", "Build succeeded")
+                    completedStatus("FAILURE", "Build failed")
+                }
             }
         }
     }
