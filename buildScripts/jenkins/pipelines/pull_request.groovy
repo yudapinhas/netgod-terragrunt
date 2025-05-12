@@ -8,7 +8,7 @@ pipeline {
         TOOL_DIR = '/var/jenkins_home/tools/bin'
         PATH = "${TOOL_DIR}:${env.PATH}"
         TF_ENV = 'dev'
-
+        REPO_URL = 'git@github.com:yudapinhas/netgod-terraform.git'
     }
 
     options {
@@ -18,14 +18,25 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            steps {
-                timestamps {
-                    ansiColor('xterm') {
-                        cleanWs()
-                        checkout scm
-                    }
+          steps {
+            timestamps {
+              ansiColor('xterm') {
+                cleanWs()
+                script {
+                  def repoUrl = "git@github.com:${env.ghprbGhRepository}.git"
+                  checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "${ghprbActualCommit}"]],
+                    userRemoteConfigs: [[
+                      url: repoUrl,
+                      credentialsId: 'github-ssh-key',
+                      refspec: '+refs/pull/*:refs/remotes/origin/pr/*'
+                    ]]
+                  ])
                 }
+              }
             }
+          }
         }
 
         stage('Prepare Pretools') {
