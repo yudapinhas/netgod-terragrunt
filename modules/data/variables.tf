@@ -1,9 +1,16 @@
 variable "bucket_name" {
-  description = "The name of the bucket"
   type        = string
+  description = "Name of the GCS bucket"
 }
 
-variable "environment" {
-  description = "Environment name"
+variable "location" {
   type        = string
+  default     = "US"
+  description = "Location of the GCS bucket"
+}
+
+variable "force_destroy" {
+  type        = bool
+  default     = false
+  description = "Whether to forcibly destroy bucket with objects"
 }
