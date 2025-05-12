@@ -18,34 +18,31 @@ pipeline {
 
     stages {
         stage('Checkout') {
-          steps {
-            script {
-              def repoUrl = "git@github.com:${ghprbGhRepository}.git"
-              def prCommit = ghprbActualCommit
-        
-              checkout([
-                $class: 'GitSCM',
-                branches: [[name: prCommit]],
-                userRemoteConfigs: [[
-                  url: repoUrl,
-                  credentialsId: 'github-ssh-key',
-                  refspec: '+refs/pull/*:refs/remotes/origin/pr/*'
-                ]]
-              ])
+            steps {
+                script {
+                    def repoUrl = env.ghprbGhRepository ? "git@github.com:${env.ghprbGhRepository}.git" : env.REPO_URL
+                    def commit = env.ghprbActualCommit ?: '*/master'
+
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: commit]],
+                        userRemoteConfigs: [[
+                            url: repoUrl,
+                            credentialsId: 'github-ssh-key',
+                            refspec: '+refs/pull/*:refs/remotes/origin/pr/*'
+                        ]]
+                    ])
+                }
             }
-          }
         }
 
-        stage('Prepare Pretools') {
+        stage('Prepare Environment') {
             steps {
                 timestamps {
                     ansiColor('xterm') {
                         sh '''
                             set -eux
-                            for script in /var/jenkins_home/netgod-pretools/*.sh; do
-                                echo "Running $script"
-                                bash "$script"
-                            done
+                            echo "terraform workspace selection here"
                         '''
                     }
                 }
@@ -57,8 +54,9 @@ pipeline {
                 timestamps {
                     ansiColor('xterm') {
                         sh '''
-                        terraform version
-                        terraform plan -var-file="environments/${TF_ENV}/${TF_ENV}.tfvars"
+                            cd environments/${TF_ENV}
+                            terraform version
+                            terraform plan -var-file="${TF_ENV}.tfvars"
                         '''
                     }
                 }
