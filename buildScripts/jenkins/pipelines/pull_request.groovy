@@ -7,6 +7,8 @@ pipeline {
         CICD = '1'
         TOOL_DIR = '/var/jenkins_home/tools/bin'
         PATH = "${TOOL_DIR}:${env.PATH}"
+        TF_ENV = 'dev'
+
     }
 
     options {
@@ -46,8 +48,10 @@ pipeline {
             steps {
                 timestamps {
                     ansiColor('xterm') {
-                        sh 'terraform version'
-                        runTerraform('plan')
+                        sh '''
+                        terraform version
+                        terraform plan -var-file="environments/${TF_ENV}/${TF_ENV}.tfvars"
+                        '''
                     }
                 }
             }
