@@ -8,7 +8,7 @@ pipeline {
         TOOL_DIR = '/var/jenkins_home/tools/bin'
         PATH = "${TOOL_DIR}:${env.PATH}"
         TF_ENV = 'dev'
-        REPO_URL = "git@github.com:yudapinhas/${env.ghprbGhRepository}.git"
+        REPO_URL = "git@github.com:yudapinhas/netgod-terraform.git"
     }
 
     options {
