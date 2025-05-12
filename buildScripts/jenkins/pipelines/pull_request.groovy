@@ -17,7 +17,7 @@ pipeline {
     }
 
     stages {
-        stage("Checkout ${env.ghprbGhRepository}") {
+        stage("Checkout Terraform") {
             steps {
                 script {
                     def repoUrl = env.ghprbGhRepository ? "git@github.com:${env.ghprbGhRepository}.git" : env.REPO_URL
