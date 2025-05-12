@@ -19,22 +19,19 @@ pipeline {
     stages {
         stage('Checkout') {
           steps {
-            timestamps {
-              ansiColor('xterm') {
-                cleanWs()
-                script {
-                  def repoUrl = "git@github.com:${env.ghprbGhRepository}.git"
-                  checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: "${ghprbActualCommit}"]],
-                    userRemoteConfigs: [[
-                      url: repoUrl,
-                      credentialsId: 'github-ssh-key',
-                      refspec: '+refs/pull/*:refs/remotes/origin/pr/*'
-                    ]]
-                  ])
-                }
-              }
+            script {
+              def repoUrl = "git@github.com:${ghprbGhRepository}.git"
+              def prCommit = ghprbActualCommit
+        
+              checkout([
+                $class: 'GitSCM',
+                branches: [[name: prCommit]],
+                userRemoteConfigs: [[
+                  url: repoUrl,
+                  credentialsId: 'github-ssh-key',
+                  refspec: '+refs/pull/*:refs/remotes/origin/pr/*'
+                ]]
+              ])
             }
           }
         }
