@@ -8,7 +8,7 @@ pipeline {
         TOOL_DIR = '/var/jenkins_home/tools/bin'
         PATH = "${TOOL_DIR}:${env.PATH}"
         TF_ENV = 'dev'
-        REPO_URL = 'git@github.com:yudapinhas/netgod-terraform.git'
+        REPO_URL = "git@github.com:yudapinhas/${env.ghprbGhRepository}.git"
     }
 
     options {
@@ -17,7 +17,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage("Checkout ${env.ghprbGhRepository}") {
             steps {
                 script {
                     def repoUrl = env.ghprbGhRepository ? "git@github.com:${env.ghprbGhRepository}.git" : env.REPO_URL
@@ -36,30 +36,40 @@ pipeline {
             }
         }
 
-        stage('Prepare Environment') {
+        stage('Clone Private Creds') {
             steps {
-                timestamps {
-                    ansiColor('xterm') {
-                        sh '''
-                            set -eux
-                            echo "terraform workspace selection here"
-                        '''
+                script {
+                    def status = sh(
+                        script: 'git clone git@github.com:yudapinhas/netgod-private.git netgod-private',
+                        returnStatus: true
+                    )
+                    if (status != 0) {
+                        echo "⚠️  netgod-private repo not reachable — skipping credentials clone"
+                    } else {
+                        echo "✅  netgod-private cloned successfully"
                     }
                 }
             }
         }
 
-        stage('Run Terraform Plan') {
+        stage('Prepare Terraform') {
             steps {
-                timestamps {
-                    ansiColor('xterm') {
-                        sh '''
-                            cd environments/${TF_ENV}
-                            terraform version
-                            terraform plan -var-file="${TF_ENV}.tfvars"
-                        '''
-                    }
-                }
+                sh '''
+                    set -eux
+                    terraform init
+                    terraform workspace select ${TF_ENV} || terraform workspace new ${TF_ENV}
+                '''
+            }
+        }
+
+
+        stage('Terraform Plan') {
+            steps {
+                sh '''
+                    set -eux
+                    terraform workspace show
+                    terraform plan -var-file="${TF_ENV}.tfvars"
+                '''
             }
         }
 
