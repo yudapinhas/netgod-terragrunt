@@ -8,7 +8,7 @@ pipeline {
         TOOL_DIR = '/var/jenkins_home/tools/bin'
         PATH = "${TOOL_DIR}:${env.PATH}"
         TF_ENV = 'dev'
-        REPO_URL = "git@github.com:yudapinhas/netgod-terraform.git"
+        REPO_URL = "git@github.com:yudapinhas/${env.ghprbGhRepository}.git"
     }
 
     options {
@@ -17,7 +17,7 @@ pipeline {
     }
 
     stages {
-        stage("Checkout ${env.ghprbGhRepository}") {
+        stage("Checkout Terraform") {
             steps {
                 script {
                     def repoUrl = env.ghprbGhRepository ? "git@github.com:${env.ghprbGhRepository}.git" : env.REPO_URL
