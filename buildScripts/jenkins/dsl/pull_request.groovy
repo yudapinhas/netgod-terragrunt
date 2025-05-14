@@ -13,7 +13,7 @@ pipelineJob('netgod-terraform-pull-request') {
                         credentials('github-ssh-key')
                         refspec('+refs/pull/*:refs/remotes/origin/pr/*')
                     }
-                    branches('${ghprbActualCommit}')
+                    branches('${sha1}')
                 }
                 scriptPath('buildScripts/jenkins/pipeline/pull_request.groovy')
             }
