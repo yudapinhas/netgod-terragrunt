@@ -17,38 +17,17 @@ pipeline {
     }
 
     stages {
-        stage("Checkout Terraform") {
+        stage("Checkout") {
             steps {
-                script {
-                    def repoUrl = env.ghprbGhRepository ? "git@github.com:${env.ghprbGhRepository}.git" : env.REPO_URL
-                    def commit = env.ghprbActualCommit ?: '*/master'
-
-                    // Debug: Log PR variables
-                    echo "ghprbActualCommit: ${env.ghprbActualCommit}"
-                    echo "ghprbGhRepository: ${env.ghprbGhRepository}"
-                    echo "ghprbSourceBranch: ${env.ghprbSourceBranch}"
-                    echo "Checkout commit: ${commit}"
-                    echo "Repo URL: ${repoUrl}"
-
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: "refs/pull/${env.ghprbPullId}/head"]],
-                        userRemoteConfigs: [[
-                            url: repoUrl,
-                            credentialsId: 'github-ssh-key',
-                            refspec: "+refs/pull/${env.ghprbPullId}/head:refs/remotes/origin/pr/${env.ghprbPullId}/head +refs/heads/*:refs/remotes/origin/*"
-                        ]],
-                        extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'netgod-terraform']]
-                    ])
-
-                    // Debug: Log checked-out commit and branch
-                    dir('netgod-terraform') {
-                        sh '''
-                            git rev-parse HEAD
-                            git branch --show-current
-                        '''
-                    }
-                }
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "refs/pull/${env.ghprbPullId}/head"]],
+                    userRemoteConfigs: [[
+                        url: "git@github.com:yudapinhas/netgod-terraform.git",
+                        credentialsId: 'github-ssh-key'
+                    ]],
+                    extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'netgod-terraform']]
+                ])
             }
         }
 
