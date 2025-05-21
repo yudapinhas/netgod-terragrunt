@@ -22,13 +22,14 @@ pipeline {
 
         stage('Clone Private Creds') {
             steps {
-                script {
-                    def status = sh(
-                      script: 'git clone git@github.com:yudapinhas/netgod-private.git netgod-private',
-                      returnStatus: true
-                    )
-                    echo status ? "⚠️  netgod-private repo not reachable" :
-                                   "✅  netgod-private cloned successfully"
+                dir('netgod-private') {
+                    checkout([$class: 'GitSCM',
+                        userRemoteConfigs: [[
+                            url: 'git@github.com:yudapinhas/netgod-private.git',
+                            credentialsId: 'github-ssh-key'
+                        ]],
+                        branches: [[name: '*/master']]
+                    ])
                 }
             }
         }
