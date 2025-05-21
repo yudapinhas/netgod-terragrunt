@@ -7,7 +7,9 @@ pipeline {
         CICD      = '1'
         TOOL_DIR  = '/var/jenkins_home/tools/bin'
         PATH      = "${TOOL_DIR}:${env.PATH}"
-        REPO_URL  = "git@github.com:yudapinhas/netgod-terraform.git"
+        REPO_NAME = "netgod-terraform"
+        ORG = 'yudapinhas'
+        REPO_URL  = "git@github.com:${ORG}/${REPO_NAME}.git"
         TF_ENV    = 'dev'    // default for CI
     }
 
@@ -23,7 +25,7 @@ pipeline {
         stage('Clone Private Creds') {
             steps {
                 sshagent(credentials: ['github-ssh-key']) {
-                    sh 'git clone git@github.com:yudapinhas/netgod-private.git netgod-private'
+                    sh 'git clone git@github.com:${env.ORG}/netgod-private.git netgod-private'
                 }
             }
         }
@@ -80,30 +82,9 @@ pipeline {
                 }
             }
         }
-
-        stage('CI Passed - Notify Yuda') {
-            steps {
-                script {
-                    def emailInfo = notifyYuda('SUCCESS')
-                    emailext(to:       emailInfo.to,
-                             subject:  emailInfo.subject,
-                             body:     emailInfo.body,
-                             mimeType: emailInfo.mimeType)
-                }
-            }
-        }
     }
 
     post {
-        failure {
-            script {
-                def emailInfo = notifyYuda('FAILURE')
-                emailext(to:       emailInfo.to,
-                         subject:  emailInfo.subject,
-                         body:     emailInfo.body,
-                         mimeType: emailInfo.mimeType)
-            }
-        }
         cleanup { cleanWs() }
     }
 }
