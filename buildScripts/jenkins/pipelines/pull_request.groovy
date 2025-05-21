@@ -28,7 +28,7 @@ pipeline {
                                                 keyFileVariable: 'SSH_KEY')]) {
                     sh '''
                     set -e
-                    GIT_SSH_COMMAND="ssh -i $SSH_KEY -o StrictHostKeyChecking=no" \
+                    GIT_SSH_COMMAND="ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
                     git clone git@github.com:$ORG/netgod-private.git netgod-private
                     '''
                 }
