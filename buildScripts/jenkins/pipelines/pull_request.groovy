@@ -24,8 +24,13 @@ pipeline {
 
         stage('Clone Private Creds') {
             steps {
-                sshagent(credentials: ['github-ssh-key']) {
-                    sh 'git clone git@github.com:${env.ORG}/netgod-private.git netgod-private'
+                withCredentials([sshUserPrivateKey(credentialsId: 'github-ssh-key',
+                                                keyFileVariable: 'SSH_KEY')]) {
+                    sh '''
+                    set -e
+                    GIT_SSH_COMMAND="ssh -i $SSH_KEY -o StrictHostKeyChecking=no" \
+                    git clone git@github.com:$ORG/netgod-private.git netgod-private
+                    '''
                 }
             }
         }
