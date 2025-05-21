@@ -17,18 +17,8 @@ pipeline {
     }
 
     stages {
-        stage("Checkout") {
-            steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: "refs/pull/${env.ghprbPullId}/head"]],
-                    userRemoteConfigs: [[
-                        url: "git@github.com:yudapinhas/netgod-terraform.git",
-                        credentialsId: 'github-ssh-key'
-                    ]],
-                    extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'netgod-terraform']]
-                ])
-            }
+        stage('Checkout') {
+            steps { checkout scm }
         }
 
         stage('Clone Private Creds') {
