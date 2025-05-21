@@ -22,19 +22,6 @@ pipeline {
             steps { checkout scm }
         }
 
-        stage('Clone Private Creds') {
-            steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'github-ssh-key',
-                                                keyFileVariable: 'SSH_KEY')]) {
-                    sh '''
-                    set -e
-                    GIT_SSH_COMMAND="ssh -i $SSH_KEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-                    git clone git@github.com:$ORG/netgod-private.git netgod-private
-                    '''
-                }
-            }
-        }
-
         stage('Determine TF_ENV') {
             steps {
                 script {
