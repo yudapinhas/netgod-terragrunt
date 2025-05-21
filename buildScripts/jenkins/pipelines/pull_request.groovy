@@ -22,14 +22,8 @@ pipeline {
 
         stage('Clone Private Creds') {
             steps {
-                dir('netgod-private') {
-                    checkout([$class: 'GitSCM',
-                        userRemoteConfigs: [[
-                            url: 'git@github.com:yudapinhas/netgod-private.git',
-                            credentialsId: 'github-ssh-key'
-                        ]],
-                        branches: [[name: '*/master']]
-                    ])
+                sshagent(credentials: ['github-ssh-key']) {
+                    sh 'git clone git@github.com:yudapinhas/netgod-private.git netgod-private'
                 }
             }
         }
