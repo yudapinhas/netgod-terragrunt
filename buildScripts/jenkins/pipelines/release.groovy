@@ -5,12 +5,14 @@ pipeline {
 
     parameters {
         string(name: 'GIT_COMMIT', defaultValue: '', description: 'Specific commit SHA to build (optional)')
+        choice(name: 'TG_ENV', choices: ['dev', 'prod'], description: 'Terragrunt environment to apply')
     }
 
     environment {
         CICD = '1'
         TOOL_DIR = '/var/jenkins_home/tools/bin'
         PATH = "${TOOL_DIR}:${env.PATH}"
+        REPO_URL = 'git@github.com:yudapinhas/netgod-terragrunt.git'
     }
 
     options {
@@ -30,7 +32,7 @@ pipeline {
                                 $class: 'GitSCM',
                                 branches: [[name: commit ?: '*/master']],
                                 userRemoteConfigs: [[
-                                    url: 'git@github.com:yudapinhas/netgod-terraform.git',
+                                    url: env.REPO_URL,
                                     credentialsId: 'github-ssh-key'
                                 ]]
                             ])
@@ -56,22 +58,34 @@ pipeline {
             }
         }
 
-        stage('Run Terraform Plan') {
+        stage('Terragrunt Plan') {
             steps {
                 timestamps {
                     ansiColor('xterm') {
-                        sh 'terraform version'
-                        runTerraform('plan')
+                        withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GCP_KEY')]) {
+                            sh '''
+                                mkdir -p gcp && cp "$GCP_KEY" gcp/credentials.json
+                                cd environments/${TG_ENV}
+                                terragrunt run-all init
+                                terragrunt run-all plan
+                            '''
+                        }
                     }
                 }
             }
         }
 
-        stage('Terraform Apply') {
+        stage('Terragrunt Apply') {
             steps {
                 timestamps {
                     ansiColor('xterm') {
-                        sh 'terraform apply -auto-approve'
+                        withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GCP_KEY')]) {
+                            sh '''
+                                mkdir -p gcp && cp "$GCP_KEY" gcp/credentials.json
+                                cd environments/${TG_ENV}
+                                terragrunt run-all apply -auto-approve
+                            '''
+                        }
                     }
                 }
             }
