@@ -1,1 +1,1 @@
-# NetGod terraform repository
+# NetGod terragrunt
