@@ -14,3 +14,11 @@ variable "force_destroy" {
   default     = false
   description = "Whether to forcibly destroy bucket with objects"
 }
+
+variable "region" {
+  type = string
+}
+
+variable "organization" {
+  type = string
+}
