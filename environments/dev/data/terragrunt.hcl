@@ -18,6 +18,6 @@ remote_state {
 
 inputs = {
   project_id    = "netgod-play"
-  bucket_name   = "netgod-data-play"
+  bucket_name   = "netgod-data-play-v2"
   force_destroy = true
 }
