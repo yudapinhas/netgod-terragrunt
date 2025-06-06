@@ -1,5 +1,5 @@
 include {
-  path = "../../../../terragrunt.hcl"
+  path = "../../../terragrunt.hcl"
 }
 
 terraform {
