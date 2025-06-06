@@ -4,7 +4,7 @@ include "root" {
 }
 
 terraform {
-  source = "../../../../../modules/data"
+  source = "../../../../modules/data"
 }
 
 remote_state {
