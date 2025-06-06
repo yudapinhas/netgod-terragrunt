@@ -24,3 +24,9 @@ variable "project_id" {
   description = "GCP Project ID"
   type        = string
 }
+
+variable "gcp_credentials" {
+  description = "GCP credentials JSON string"
+  type        = string
+  sensitive   = true
+}
