@@ -7,9 +7,6 @@ generate "provider" {
   path      = "provider.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
-variable "region" {
-  type = string
-}
 
 provider "google" {
   project     = var.project_id
