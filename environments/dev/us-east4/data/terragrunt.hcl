@@ -8,9 +8,9 @@ terraform {
 }
 
 remote_state {
-  backend = "remote"
+  backend = "cloud"
   config = {
-    hostname     = "app.terraform.io"
+    hostname = "app.terraform.io"
     organization = include.root.inputs.organization
     workspaces = {
       name = "terragrunt-dev"
@@ -19,9 +19,9 @@ remote_state {
 }
 
 inputs = {
-  project_id    = "netgod-play"
-  bucket_name   = "netgod-dev-us-east4-data"
+  project_id = "netgod-play"
+  bucket_name  = "netgod-dev-us-east4-data"
   force_destroy = true
-  organization  = include.root.inputs.organization
-  region        = "us-east4"
+  organization = include.root.inputs.organization
+  region = "us-east4"
 }
