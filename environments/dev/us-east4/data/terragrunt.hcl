@@ -12,7 +12,7 @@ remote_state {
   config = {
     hostname = "app.terraform.io"
     organization = include.root.inputs.organization
-    workspaces {
+    workspaces = {
       prefix = "terragrunt-"
     }
   }
