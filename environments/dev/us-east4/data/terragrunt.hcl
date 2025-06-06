@@ -8,7 +8,7 @@ terraform {
 }
 
 remote_state {
-  backend = "cloud"
+  backend = "remote"
   config = {
     hostname = "app.terraform.io"
     organization = include.root.inputs.organization
