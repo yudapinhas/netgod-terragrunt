@@ -13,14 +13,14 @@ remote_state {
     hostname     = "app.terraform.io"
     organization = include.root.inputs.organization
     workspaces = {
-      name = "netgod-data-${path_relative_to_include()}"
+      name = "terragrunt-dev"
     }
   }
 }
 
 inputs = {
   project_id    = "netgod-play"
-  bucket_name   = "netgod-data-play-v2-${path_relative_to_include()}"
+  bucket_name   = "netgod-dev-us-east4-data"
   force_destroy = true
   organization  = include.root.inputs.organization
   region        = "us-east4"
