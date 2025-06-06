@@ -35,22 +35,26 @@ pipeline {
         stage('Determine Terragrunt Targets') {
             steps {
                 script {
-                    def changedModules = sh(
-                        script: 'git diff --name-only origin/master...HEAD | grep "environments/.*/.*/terragrunt.hcl" || true',
+                    def modules = sh(
+                        script: 'find environments -type f -name "terragrunt.hcl" -exec dirname {} \\; | sort -u',
                         returnStdout: true
                     ).trim().split('\n').findAll { it }
 
-                    if (!changedModules) {
-                        error "No terragrunt.hcl changes detected. Skipping plan."
+                    if (modules.isEmpty()) {
+                        echo "No terragrunt.hcl files found in environments/. Proceeding with no targets."
+                        env.TG_CHANGED_PATHS = ""
+                    } else {
+                        env.TG_CHANGED_PATHS = modules.join(',')
+                        echo "Detected Terragrunt modules:\n${env.TG_CHANGED_PATHS}"
                     }
-
-                    env.TG_CHANGED_PATHS = changedModules.join(',')
-                    echo "Detected Terragrunt modules:\n${env.TG_CHANGED_PATHS}"
                 }
             }
         }
 
         stage('Terragrunt Plan') {
+            when {
+                expression { env.TG_CHANGED_PATHS != "" }
+            }
             steps {
                 withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GCP_KEY')]) {
                     script {
