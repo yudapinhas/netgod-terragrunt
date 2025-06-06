@@ -10,9 +10,10 @@ terraform {
 remote_state {
   backend = "remote"
   config = {
+    hostname     = "app.terraform.io"
     organization = include.root.inputs.organization
     workspaces = {
-      prefix = "netgod-data-${path_relative_to_include()}-"
+      name = "netgod-data-${path_relative_to_include()}"
     }
   }
 }
