@@ -64,7 +64,9 @@ pipeline {
                                 sh """
                                     set -eux
                                     terragrunt init
+                                    set +x
                                     terragrunt plan -var 'gcp_credentials=${gcpJson}'
+                                    set -x
                                 """
                             }
                         }
