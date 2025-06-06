@@ -35,29 +35,17 @@ pipeline {
         stage('Determine Terragrunt Targets') {
             steps {
                 script {
-                    def changedFiles = sh(
-                        script: 'git diff --name-only origin/master...HEAD',
+                    def modules = sh(
+                        script: 'find environments -type f -name "terragrunt.hcl" -exec dirname {} \\; | sort -u',
                         returnStdout: true
-                    ).trim().split('\n')
-                    def changedEnvs = changedFiles.findAll { it.startsWith('environments/') }
-                        .collect { it.split('/')[1] }
-                        .unique()
-                    if (changedEnvs.isEmpty()) {
-                        echo "No changes detected in any environment. Skipping Terragrunt Plan."
-                        env.HAS_CHANGES = 'false'
-                        env.TG_MODULE_DIRS = ''
+                    ).trim().split('\n').findAll { it }
+
+                    if (modules.isEmpty()) {
+                        echo "No terragrunt.hcl files found in environments/. Proceeding with no targets."
+                        env.TG_CHANGED_PATHS = ""
                     } else {
-                        def allModuleDirs = []
-                        changedEnvs.each { env ->
-                            def moduleDirs = sh(
-                                script: "find environments/${env} -type f -name terragrunt.hcl -exec dirname {} \\;",
-                                returnStdout: true
-                            ).trim().split('\n')
-                            allModuleDirs.addAll(moduleDirs)
-                        }
-                        env.HAS_CHANGES = 'true'
-                        env.TG_MODULE_DIRS = allModuleDirs.join(',')
-                        echo "Detected Terragrunt modules to plan:\n${env.TG_MODULE_DIRS}"
+                        env.TG_CHANGED_PATHS = modules.join(',')
+                        echo "Detected Terragrunt modules:\n${env.TG_CHANGED_PATHS}"
                     }
                 }
             }
@@ -65,7 +53,7 @@ pipeline {
 
         stage('Terragrunt Plan') {
             when {
-                expression { return env.HAS_CHANGES == 'true' }
+                expression { env.TG_CHANGED_PATHS != "" }
             }
             steps {
                 withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GCP_KEY')]) {
@@ -73,10 +61,10 @@ pipeline {
                         env.GCP_CREDENTIALS_PATH = "gcp/credentials.json"
                         sh "mkdir -p gcp && cp $GCP_KEY $GCP_CREDENTIALS_PATH"
 
-                        def moduleDirs = env.TG_MODULE_DIRS.split(',')
-                        moduleDirs.each { moduleDir ->
-                            echo "Running Terragrunt plan in ${moduleDir}"
-                            dir(moduleDir) {
+                        def modules = env.TG_CHANGED_PATHS.split(',')
+                        modules.each { modulePath ->
+                            echo "Running Terragrunt plan in ${modulePath}"
+                            dir(modulePath) {
                                 sh '''
                                     set -eux
                                     terragrunt init
