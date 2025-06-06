@@ -1,3 +1,7 @@
+terraform {
+  backend "remote" {}
+}
+
 resource "google_storage_bucket" "data_bucket" {
   name          = var.bucket_name
   location      = var.location
