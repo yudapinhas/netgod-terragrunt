@@ -1,8 +1,6 @@
 @Library('netgod-jenkins-shared-lib@master') _
-
 pipeline {
     agent any
-
     environment {
         CICD      = '1'
         TOOL_DIR  = '/var/jenkins_home/tools/bin'
@@ -11,13 +9,11 @@ pipeline {
         ORG       = 'yudapinhas'
         REPO_URL  = "git@github.com:${ORG}/${REPO_NAME}.git"
     }
-
     options {
         ansiColor('xterm')
         skipDefaultCheckout()
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
-
     stages {
         stage('Checkout PR branch') {
             steps {
@@ -31,7 +27,6 @@ pipeline {
                 ])
             }
         }
-
         stage('Determine Terragrunt Targets') {
             steps {
                 script {
@@ -50,23 +45,26 @@ pipeline {
                 }
             }
         }
-
         stage('Terragrunt Plan') {
             when {
                 expression { env.TG_CHANGED_PATHS != "" }
             }
             steps {
-                withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GCP_KEY')]) {
+                withCredentials([
+                    file(credentialsId: 'gcp-sa-json', variable: 'GCP_KEY'),
+                    string(credentialsId: 'terraform-cloud-token', variable: 'TF_TOKEN_app_terraform_io')
+                ]) {
                     script {
                         env.GCP_CREDENTIALS_PATH = "gcp/credentials.json"
                         sh "mkdir -p gcp && cp $GCP_KEY $GCP_CREDENTIALS_PATH"
-
+                      
                         def modules = env.TG_CHANGED_PATHS.split(',')
                         modules.each { modulePath ->
                             echo "Running Terragrunt plan in ${modulePath}"
                             dir(modulePath) {
                                 sh '''
                                     set -eux
+                                    echo "Terraform Cloud token configured: $(echo $TF_TOKEN_app_terraform_io | cut -c1-10)..."
                                     terragrunt init
                                     terragrunt plan
                                 '''
@@ -77,7 +75,6 @@ pipeline {
             }
         }
     }
-
     post {
         cleanup {
             cleanWs()
