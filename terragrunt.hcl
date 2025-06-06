@@ -1,6 +1,6 @@
-inputs = {
-  region       = "us-east4"
+locals {
   organization = "yudapinhas"
+  region       = "us-east4"
 }
 
 generate "provider" {
