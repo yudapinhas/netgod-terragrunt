@@ -34,13 +34,12 @@ pipeline {
                         script: 'find environments -type f -name "terragrunt.hcl" -exec dirname {} \\; | sort -u',
                         returnStdout: true
                     ).trim().split('\n').findAll { it }
-
                     if (modules.isEmpty()) {
                         echo "No terragrunt.hcl files found in environments/. Proceeding with no targets."
                         env.TG_CHANGED_PATHS = ""
                     } else {
                         env.TG_CHANGED_PATHS = modules.join(',')
-                        echo "Detected Terragrunt modules:\n${env.TG_CHANGED_PATHS}"
+                        echo "Detected Terragrunt modules:\n${env.TG_CHANGED_PATHS.replace(',', '\n')}"
                     }
                 }
             }
@@ -56,8 +55,8 @@ pipeline {
                 ]) {
                     script {
                         env.GCP_CREDENTIALS_PATH = "gcp/credentials.json"
-                        sh "mkdir -p gcp && cp $GCP_KEY $GCP_CREDENTIALS_PATH"
-                      
+                        sh "mkdir -p gcp && cp \$GCP_KEY \$GCP_CREDENTIALS_PATH"
+                        
                         def modules = env.TG_CHANGED_PATHS.split(',')
                         modules.each { modulePath ->
                             echo "Running Terragrunt plan in ${modulePath}"
