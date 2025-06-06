@@ -1,5 +1,5 @@
 terraform {
-  backend "remote" {}
+  backend "cloud" {}
 }
 
 resource "google_storage_bucket" "data_bucket" {
