@@ -63,7 +63,6 @@ pipeline {
                             dir(modulePath) {
                                 sh '''
                                     set -eux
-                                    echo "Terraform Cloud token configured: $(echo $TF_TOKEN_app_terraform_io | cut -c1-10)..."
                                     terragrunt init
                                     terragrunt plan
                                 '''
