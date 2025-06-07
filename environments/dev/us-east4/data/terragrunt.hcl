@@ -8,7 +8,7 @@ locals {
     force_destroy = true
     organization  = local.tfc_organization
     region        = "us-east4"
-    gcp_credentials = getenv("GCP_JSON", "")
+    gcp_credentials = get_env("GCP_JSON", "")
   }
 }
 
