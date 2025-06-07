@@ -1,6 +1,8 @@
 inputs = {
-  region       = "us-east4"
   organization = "yudapinhas"
+  regions      = ["us-east4"]
+
+  gcp_credentials = ""
 }
 
 generate "provider" {
@@ -9,8 +11,8 @@ generate "provider" {
   contents  = <<EOF
 provider "google" {
   project     = var.project_id
-  region      = "${local.region}"
-  credentials = file("gcp/credentials.json")
+  region      = var.region
+  credentials = var.gcp_credentials
 }
 EOF
 }

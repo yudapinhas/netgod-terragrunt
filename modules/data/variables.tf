@@ -16,9 +16,17 @@ variable "force_destroy" {
 }
 
 variable "region" {
-  type = string
+  type        = string
+  description = "Region to deploy the resources"
 }
 
-variable "organization" {
-  type = string
+variable "project_id" {
+  description = "GCP Project ID"
+  type        = string
+}
+
+variable "gcp_credentials" {
+  description = "GCP credentials JSON string"
+  type        = string
+  sensitive   = true
 }
