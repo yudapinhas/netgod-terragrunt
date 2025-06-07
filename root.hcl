@@ -1,8 +1,28 @@
-inputs = {
-  organization = "yudapinhas"
-  regions      = ["us-east4"]
+locals {
+  tfc_hostname     = "app.terraform.io"
+  tfc_organization = "yudapinhas"
 
-  gcp_credentials = ""
+  common_inputs = {
+    organization   = local.tfc_organization
+    project_id     = "netgod-play"
+    gcp_credentials = get_env("GCP_JSON", "")
+  }
+}
+
+generate "remote_state" {
+  path      = "backend.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+terraform {
+  backend "remote" {
+    hostname     = "${local.tfc_hostname}"
+    organization = "${local.tfc_organization}"
+    workspaces {
+      prefix = "terragrunt-"
+    }
+  }
+}
+EOF
 }
 
 generate "provider" {
@@ -16,3 +36,5 @@ provider "google" {
 }
 EOF
 }
+
+inputs = local.common_inputs
