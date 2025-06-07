@@ -8,6 +8,7 @@ locals {
     force_destroy = true
     organization  = local.tfc_organization
     region        = "us-east4"
+    gcp_credentials = getenv("GCP_JSON", "")
   }
 }
 
@@ -40,7 +41,7 @@ generate "auto_tfvars" {
   path      = "terragrunt.auto.tfvars"
   if_exists = "overwrite_terragrunt"
   contents  = join("\n", [
-    for k, v in merge(local.common_inputs, { gcp_credentials = "" }) : "${k} = ${jsonencode(v)}"
+    for k, v in local.common_inputs : "${k} = ${jsonencode(v)}"
   ])
 }
 

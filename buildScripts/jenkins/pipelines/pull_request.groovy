@@ -54,8 +54,7 @@ pipeline {
                     string(credentialsId: 'terraform-cloud-token', variable: 'TF_TOKEN_app_terraform_io')
                 ]) {
                     script {
-                        // Read the content of the GCP JSON key into a Groovy variable
-                        def gcpJson = readFile(env.GCP_KEY).trim().replace('\n', '\\n').replace('"', '\\"')
+                        def gcpJson = readFile(env.GCP_KEY).trim()
                         
                         def modules = env.TG_CHANGED_PATHS.split(',')
                         modules.each { modulePath ->
@@ -64,7 +63,7 @@ pipeline {
                                 sh """
                                     set -eu
                                     set +x
-                                    echo 'gcp_credentials = "${gcpJson}"' >> terragrunt.auto.tfvars
+                                    export GCP_JSON='''${gcpJson}'''
                                     set -x
                                     terragrunt init
                                     terragrunt plan
