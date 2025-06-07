@@ -62,11 +62,12 @@ pipeline {
                             echo "Running Terragrunt plan in ${modulePath}"
                             dir(modulePath) {
                                 sh """
-                                    set -eux
-                                    terragrunt init
+                                    set -eu
                                     set +x
-                                    terragrunt plan -var 'gcp_credentials=${gcpJson}'
+                                    echo 'gcp_credentials = "${gcpJson}"' >> terragrunt.auto.tfvars
                                     set -x
+                                    terragrunt init
+                                    terragrunt plan
                                 """
                             }
                         }

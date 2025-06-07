@@ -40,7 +40,7 @@ generate "auto_tfvars" {
   path      = "terragrunt.auto.tfvars"
   if_exists = "overwrite_terragrunt"
   contents  = join("\n", [
-    for k, v in local.common_inputs : "${k} = ${jsonencode(v)}"
+    for k, v in merge(local.common_inputs, { gcp_credentials = "" }) : "${k} = ${jsonencode(v)}"
   ])
 }
 
