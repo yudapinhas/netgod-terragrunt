@@ -9,14 +9,20 @@ locals {
   }
 }
 
+generate "remote_state" {
+  path      = "backend.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
 terraform {
   backend "remote" {
-    hostname     = local.tfc_hostname
-    organization = local.tfc_organization
+    hostname     = "${local.tfc_hostname}"
+    organization = "${local.tfc_organization}"
     workspaces {
       prefix = "terragrunt-"
     }
   }
+}
+EOF
 }
 
 generate "provider" {
