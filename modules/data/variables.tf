@@ -30,3 +30,8 @@ variable "gcp_credentials" {
   type        = string
   sensitive   = true
 }
+
+variable "meta" {
+  type    = map(any)
+  default = {}
+}

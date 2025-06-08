@@ -1,20 +1,28 @@
-locals {
-  tfc_hostname     = "app.terraform.io"
-  tfc_organization = include.root.inputs.organization
-
-  common_inputs = {
-    project_id    = "netgod-play"
-    bucket_name   = "netgod-dev-us-east4-data"
-    force_destroy = true
-    organization  = local.tfc_organization
-    region        = "us-east4"
-    gcp_credentials = get_env("GCP_JSON", "")
-  }
-}
-
+### terragrunt.hcl
 include "root" {
   path   = find_in_parent_folders("root.hcl")
   expose = true
+}
+
+locals {
+  meta_inputs = {
+    organization = include.root.inputs.organization
+    tfc_hostname = include.root.inputs.tfc_hostname
+  }
+
+  specific_inputs = {
+    bucket_name = "netgod-dev-us-east4-data"
+    region      = "us-east4"
+  }
+
+  module_inputs = merge(
+    {
+      project_id      = include.root.inputs.project_id
+      force_destroy   = include.root.inputs.force_destroy
+      gcp_credentials = include.root.inputs.gcp_credentials
+    },
+    local.specific_inputs
+  )
 }
 
 terraform {
@@ -27,8 +35,8 @@ generate "remote_state" {
   contents  = <<EOF
 terraform {
   backend "remote" {
-    hostname     = "${local.tfc_hostname}"
-    organization = "${local.tfc_organization}"
+    hostname     = "${local.meta_inputs.tfc_hostname}"
+    organization = "${local.meta_inputs.organization}"
     workspaces {
       prefix = "terragrunt-"
     }
@@ -40,9 +48,14 @@ EOF
 generate "auto_tfvars" {
   path      = "terragrunt.auto.tfvars"
   if_exists = "overwrite_terragrunt"
-  contents  = join("\n", [
-    for k, v in local.common_inputs : "${k} = ${jsonencode(v)}"
-  ])
+  contents  = join("\n", concat(
+    [
+      "meta = ${jsonencode(local.meta_inputs)}",
+    ],
+    [
+      for k, v in local.module_inputs : "${k} = ${jsonencode(v)}"
+    ]
+  ))
 }
 
-inputs = local.common_inputs
+inputs = merge({meta = local.meta_inputs},local.module_inputs)
