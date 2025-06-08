@@ -1,8 +1,10 @@
+### root.hcl
 inputs = {
-  organization = "yudapinhas"
-  regions      = ["us-east4"]
-
-  gcp_credentials = ""
+  organization    = "yudapinhas"
+  tfc_hostname     = "app.terraform.io"
+  project_id      = "netgod-play"
+  force_destroy   = true
+  gcp_credentials = get_env("GCP_JSON", "")
 }
 
 generate "provider" {
